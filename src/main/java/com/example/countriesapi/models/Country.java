@@ -1,6 +1,7 @@
 package com.example.countriesapi.models;
 
 
+import com.example.countriesapi.dto.CountryDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -53,7 +54,7 @@ public class Country {
     private Set<String> timeZones;
 
     public Country(String isoCode, String commonName, String officialName, String region, String subregion, Long population,
-                   Set<String> languages, Set<String> capital, Set<String> timeZones) {
+                   Set<String> languages, Set<String> currencies, Set<String> capital, Set<String> timeZones) {
         this.isoCode = isoCode;
         this.commonName = commonName;
         this.officialName = officialName;
@@ -61,11 +62,38 @@ public class Country {
         this.subregion = subregion;
         this.population = population;
         this.languages = languages;
+        this.currencies = currencies;
         this.capital = capital;
         this.timeZones = timeZones;
     }
 
-    public Country(String isoCode, String officialName, String region, String subregion, Long population) {
-        this(isoCode, "", officialName, region, subregion, population, Set.of(), Set.of(), Set.of());
+    public Country(String isoCode) {
+        this(
+                isoCode,
+                "",
+                "",
+                "",
+                "",
+                0L,
+                Set.of(),
+                Set.of(),
+                Set.of(),
+                Set.of()
+        );
+    }
+
+    public Country(CountryDTO countryDTO) {
+        this(
+                countryDTO.isoCode(),
+                countryDTO.commonName(),
+                countryDTO.officialName(),
+                countryDTO.region(),
+                countryDTO.subregion(),
+                countryDTO.population(),
+                countryDTO.languages(),
+                countryDTO.currencies(),
+                countryDTO.capital(),
+                countryDTO.timeZones()
+        );
     }
 }

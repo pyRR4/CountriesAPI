@@ -1,6 +1,7 @@
 package com.example.countriesapi.models;
 
 
+import com.example.countriesapi.dto.BorderDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,7 +30,19 @@ public class Border {
     private Country neighbour;
 
     public Border(Country country, Country neighbour) {
-        this.country = country;
-        this.neighbour = neighbour;
+        if (country.getIsoCode().compareTo(neighbour.getIsoCode()) < 0) {
+            this.country = country;
+            this.neighbour = neighbour;
+        } else {
+            this.country = neighbour;
+            this.neighbour = country;
+        }
+    }
+
+    public Border(BorderDTO borderDTO) {
+        this(
+                new Country(borderDTO.countryCode()),
+                new Country(borderDTO.neighbourCode())
+        );
     }
 }
