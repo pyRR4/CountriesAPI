@@ -2,6 +2,7 @@ package com.example.countriesapi.dto;
 
 import com.example.countriesapi.models.Country;
 
+import java.util.List;
 import java.util.Set;
 
 public record CountryDTO(
@@ -14,7 +15,8 @@ public record CountryDTO(
     Set<String> languages,
     Set<String> currencies,
     Set<String> capital,
-    Set<String> timeZones
+    Set<String> timeZones,
+    List<String> borders
 ) {
     public CountryDTO(
             String isoCode,
@@ -26,7 +28,8 @@ public record CountryDTO(
             Set<String> languages,
             Set<String> currencies,
             Set<String> capital,
-            Set<String> timeZones
+            Set<String> timeZones,
+            List<String> borders
     ) {
         this.isoCode = isoCode;
         this.commonName = commonName;
@@ -38,21 +41,7 @@ public record CountryDTO(
         this.currencies = currencies;
         this.capital = capital;
         this.timeZones = timeZones;
-    }
-
-    public CountryDTO() {
-        this(
-                "",
-                "",
-                "",
-                "",
-                "",
-                0L,
-                Set.of(),
-                Set.of(),
-                Set.of(),
-                Set.of()
-        );
+        this.borders = borders;
     }
 
     public CountryDTO(Country country) {
@@ -66,7 +55,11 @@ public record CountryDTO(
                 country.getLanguages(),
                 country.getCurrencies(),
                 country.getCapital(),
-                country.getTimeZones()
+                country.getTimeZones(),
+                country.getBorders().stream().map(border ->
+                        (border.getCountry().getIsoCode().equals(country.getIsoCode())) ?
+                                border.getNeighbour().getIsoCode() : border.getCountry().getIsoCode()
+                ).toList()
         );
     }
 }

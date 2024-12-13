@@ -3,7 +3,6 @@ package com.example.countriesapi.utils;
 
 import com.example.countriesapi.dto.BorderDTO;
 import com.example.countriesapi.dto.CountryDTO;
-import com.example.countriesapi.services.BorderService;
 import com.example.countriesapi.services.CountryService;
 import com.example.countriesapi.services.CountryTransformer;
 import com.example.countriesapi.services.DataFetchingService;
@@ -24,18 +23,16 @@ public class DataLoader implements CommandLineRunner {
     private final CountryService countryService;
     private final CountryTransformer countryTransformer;
     private final DataFetchingService dataFetchingServiceService;
-    private final BorderService borderService;
 
     @Autowired
     public DataLoader(
             CountryService countryService,
             CountryTransformer countryTransformer,
-            DataFetchingService dataFetchingServiceService,
-            BorderService borderService) {
+            DataFetchingService dataFetchingServiceService
+    ) {
         this.countryService = countryService;
         this.countryTransformer = countryTransformer;
         this.dataFetchingServiceService = dataFetchingServiceService;
-        this.borderService = borderService;
     }
 
     @Override
@@ -50,7 +47,7 @@ public class DataLoader implements CommandLineRunner {
 
             dataFetchingServiceService.fetchCountries()
                     .doOnTerminate(() ->
-                            logger.info("Fetching countries from DB completed.")
+                            logger.info("Fetching countries from DB.")
                     ).flatMap(country -> {
                                 CountryDTO countryDTO = countryTransformer.toCountryDTO(country);
 
@@ -64,14 +61,16 @@ public class DataLoader implements CommandLineRunner {
                                 return Mono.just(borderDTOs);
                             })
                     .collectList()
-                    .doOnTerminate(() -> logger.info("Fetching borders from DB completed."))
+                    .doOnTerminate(() -> logger.info("Fetching borders from DB."))
                     .subscribe(borderDTOList -> {
                         for (List<BorderDTO> borderDTOSubList: borderDTOList)
-                            try {
-                                borderService.saveBorders(borderDTOSubList);
-                            } catch (DataIntegrityViolationException e) {
-                                logger.warn("Border " + borderDTOSubList + " already added.");
-                            }
+                            for (BorderDTO borderDTO: borderDTOSubList)
+                                try {
+                                    countryService.addCountryBorder(borderDTO);
+                                    logger.info("Added border: " + borderDTO);
+                                } catch (DataIntegrityViolationException e) {
+                                    logger.warn("Border " + borderDTO + " already added.");
+                                }
                     });
 
 

@@ -36,7 +36,7 @@ public class Country {
     @Column(nullable = false)
     private Long population;
 
-    @OneToMany(mappedBy = "country")
+    @OneToMany(mappedBy = "country", fetch = FetchType.EAGER)
     private List<Border> borders;
 
     ///Consider expanding those below to separate entity
