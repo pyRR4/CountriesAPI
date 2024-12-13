@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -32,5 +33,16 @@ public class CountryController {
                 .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS).cachePublic())
                 .eTag(String.valueOf(countryDTO.hashCode()))
                 .body(countryDTO);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<CountryDTO>> getAllCountries() {
+        List<CountryDTO> countryDTOs = countryService.getAllCountries();
+
+        return ResponseEntity
+                .ok()
+                .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS).cachePublic())
+                .eTag(String.valueOf(countryDTOs.hashCode()))
+                .body(countryDTOs);
     }
 }

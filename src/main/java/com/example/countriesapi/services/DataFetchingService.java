@@ -15,7 +15,9 @@ public class DataFetchingService {
 
     @Autowired
     public DataFetchingService(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("https://restcountries.com/v3.1").build();
+        this.webClient = webClientBuilder
+                .baseUrl("https://restcountries.com/v3.1")
+                .build();
     }
 
     public Flux<Map<String, Object>> fetchCountries() {

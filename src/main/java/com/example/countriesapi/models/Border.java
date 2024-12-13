@@ -1,7 +1,7 @@
 package com.example.countriesapi.models;
 
 
-import com.example.countriesapi.dto.BorderDTO;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,10 +23,12 @@ public class Border {
 
     @ManyToOne
     @JoinColumn(name = "country_code")
+    @JsonBackReference
     private Country country;
 
     @ManyToOne
     @JoinColumn(name = "neighbour_code")
+    @JsonBackReference
     private Country neighbour;
 
     public Border(Country country, Country neighbour) {
@@ -37,12 +39,5 @@ public class Border {
             this.country = neighbour;
             this.neighbour = country;
         }
-    }
-
-    public Border(BorderDTO borderDTO) {
-        this(
-                new Country(borderDTO.countryCode()),
-                new Country(borderDTO.neighbourCode())
-        );
     }
 }

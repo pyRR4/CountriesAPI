@@ -2,6 +2,7 @@ package com.example.countriesapi.models;
 
 
 import com.example.countriesapi.dto.CountryDTO;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,6 +38,7 @@ public class Country {
     private Long population;
 
     @OneToMany(mappedBy = "country", fetch = FetchType.EAGER)
+    @JsonManagedReference
     private List<Border> borders;
 
     ///Consider expanding those below to separate entity

@@ -10,4 +10,11 @@ public record BorderDTO(
         this.countryCode = countryCode;
         this.neighbourCode = neighbourCode;
     }
+
+    public BorderDTO(Border border) {
+        this(
+                border.getCountry().getIsoCode(),
+                border.getNeighbour().getIsoCode()
+        );
+    }
 }

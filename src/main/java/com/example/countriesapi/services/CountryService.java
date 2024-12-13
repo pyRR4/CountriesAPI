@@ -4,12 +4,12 @@ package com.example.countriesapi.services;
 import com.example.countriesapi.dto.BorderDTO;
 import com.example.countriesapi.dto.CountryDTO;
 import com.example.countriesapi.exceptions.CountryNotFound;
-import com.example.countriesapi.models.Border;
 import com.example.countriesapi.models.Country;
 import com.example.countriesapi.repositories.CountryRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -27,22 +27,24 @@ public class CountryService {
         Country country = countryRepository.findByIsoCode(isoCode)
                 .orElseThrow(() -> new CountryNotFound(isoCode));
 
-        List<Border> countryBorders = borderService.getBordersByIsoCode(isoCode);
-        country.setBorders(countryBorders);
+        List<BorderDTO> countryBorders = borderService.getBordersByIsoCode(isoCode);
 
-        return new CountryDTO(country);
+        return new CountryDTO(country, countryBorders);
     }
 
-    public void addCountryBorder(BorderDTO borderDTO) {
-        Country country = countryRepository.findByIsoCode(borderDTO.countryCode())
-                .orElseThrow(() -> new CountryNotFound(borderDTO.countryCode()));
+    public List<CountryDTO> getAllCountries() {
+        List<Country> countries = countryRepository.findAll();
 
-        Country neighbour = countryRepository.findByIsoCode(borderDTO.neighbourCode())
-                .orElseThrow(() -> new CountryNotFound(borderDTO.neighbourCode()));
+        if(countries.isEmpty()) {
+            throw new CountryNotFound("No countries found", "");
+        }
 
-        Border border = borderService.saveBorder(borderDTO);
-        country.getBorders().add(border);
-        neighbour.getBorders().add(border);
+        return countries.stream()
+                .map(country -> {
+                    List<BorderDTO> countryBorders = borderService.getBordersByIsoCode(country.getIsoCode());
+                    return new CountryDTO(country, countryBorders);
+                })
+                .collect(Collectors.toList());
     }
 
     public void saveCountry(CountryDTO countryDTO) {

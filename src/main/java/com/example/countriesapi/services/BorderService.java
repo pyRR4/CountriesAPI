@@ -2,8 +2,11 @@ package com.example.countriesapi.services;
 
 
 import com.example.countriesapi.dto.BorderDTO;
+import com.example.countriesapi.exceptions.CountryNotFound;
 import com.example.countriesapi.models.Border;
+import com.example.countriesapi.models.Country;
 import com.example.countriesapi.repositories.BorderRepository;
+import com.example.countriesapi.repositories.CountryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,13 +17,15 @@ import java.util.List;
 public class BorderService {
 
     private final BorderRepository borderRepository;
+    private final CountryRepository countryRepository;
 
     @Autowired
-    public BorderService(BorderRepository borderRepository) {
+    public BorderService(BorderRepository borderRepository, CountryRepository countryRepository) {
         this.borderRepository = borderRepository;
+        this.countryRepository = countryRepository;
     }
 
-    public List<Border> getBordersByIsoCode(String isoCode) {
+    public List<BorderDTO> getBordersByIsoCode(String isoCode) {
         List<Border> borders = borderRepository.findByCountryIsoCode(isoCode);
         List<Border> bordersAsNeighbour = borderRepository.findByNeighbourIsoCode(isoCode);
 
@@ -30,12 +35,21 @@ public class BorderService {
 
         return allBorders
                 .stream()
+                .map(BorderDTO::new)
                 .toList();
     }
 
-    public Border saveBorder(BorderDTO borderDTO) {
-        Border border = new Border(borderDTO);
+    public void saveBorder(BorderDTO borderDTO) {
+        Country country = countryRepository.findByIsoCode(borderDTO.countryCode())
+                .orElseThrow(() -> new CountryNotFound(borderDTO.countryCode()));
+        Country neighbour = countryRepository.findByIsoCode(borderDTO.neighbourCode())
+                .orElseThrow(() -> new CountryNotFound(borderDTO.neighbourCode()));
 
-        return borderRepository.save(border);
+        Border border = new Border(country, neighbour);
+
+        country.getBorders().add(border);
+        neighbour.getBorders().add(border);
+
+        borderRepository.save(border);
     }
 }

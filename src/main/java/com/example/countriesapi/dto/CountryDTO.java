@@ -44,7 +44,7 @@ public record CountryDTO(
         this.borders = borders;
     }
 
-    public CountryDTO(Country country) {
+    public CountryDTO(Country country, List<BorderDTO> borders) {
         this(
                 country.getIsoCode(),
                 country.getCommonName(),
@@ -56,9 +56,9 @@ public record CountryDTO(
                 country.getCurrencies(),
                 country.getCapital(),
                 country.getTimeZones(),
-                country.getBorders().stream().map(border ->
-                        (border.getCountry().getIsoCode().equals(country.getIsoCode())) ?
-                                border.getNeighbour().getIsoCode() : border.getCountry().getIsoCode()
+                borders.stream().map(border ->
+                        (border.countryCode().equals(country.getIsoCode())) ?
+                                border.neighbourCode() : border.countryCode()
                 ).toList()
         );
     }
